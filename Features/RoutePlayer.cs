@@ -590,7 +590,7 @@ public class RoutePlayer : FeatureBase
                 var distSq = (marker.transform.position - playerPos).sqrMagnitude;
 
                 var renderer = marker.GetComponent<Renderer>();
-                if (!renderer) continue;
+                if (!renderer || !renderer.material) continue;
 
                 var completed = _activatedMarkers.Contains(marker);
 

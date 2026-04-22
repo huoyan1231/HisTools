@@ -5,6 +5,11 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <!-- Post-build: copy AssetBundle to output directory -->
+  <PropertyGroup>
+    <PostBuildEvent>if exist "$(ProjectDir)Assets" xcopy /E /Y "$(ProjectDir)Assets" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>full</DebugType>
   </PropertyGroup>
@@ -22,23 +27,41 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>Libs\Bepinex\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="ALINE">
       <HintPath>Libs\ALINE.dll</HintPath>
     </Reference>
     <Reference Include="andywiecko.BurstTriangulator">
       <HintPath>Libs\andywiecko.BurstTriangulator.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>Libs\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>Libs\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>Libs\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="AstarPathfindingProject">
       <HintPath>Libs\AstarPathfindingProject.dll</HintPath>
     </Reference>
+    <Reference Include="BakeryAPV">
+      <HintPath>Libs\BakeryAPV.dll</HintPath>
+    </Reference>
+    <Reference Include="BakeryECS">
+      <HintPath>Libs\BakeryECS.dll</HintPath>
+    </Reference>
     <Reference Include="BakeryRuntimeAssembly">
       <HintPath>Libs\BakeryRuntimeAssembly.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>Libs\Bepinex\BepInEx.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>Libs\Bepinex\BepInEx.Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx.Preloader">
+      <HintPath>Libs\Bepinex\BepInEx.Preloader.dll</HintPath>
     </Reference>
     <Reference Include="Clipper2Lib">
       <HintPath>Libs\Clipper2Lib.dll</HintPath>
@@ -70,11 +93,29 @@
     <Reference Include="Febucci.TextAnimator.TMP.Runtime">
       <HintPath>Libs\Febucci.TextAnimator.TMP.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="HarmonyXInterop">
+      <HintPath>Libs\Bepinex\HarmonyXInterop.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>Libs\Bepinex\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>Libs\Bepinex\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>Libs\Bepinex\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>Libs\Bepinex\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Security">
       <HintPath>Libs\Mono.Security.dll</HintPath>
     </Reference>
-    <Reference Include="mscorlib">
-      <HintPath>Libs\mscorlib.dll</HintPath>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>Libs\Bepinex\MonoMod.RuntimeDetour.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>Libs\Bepinex\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Libs\Newtonsoft.Json.dll</HintPath>
@@ -94,14 +135,20 @@
     <Reference Include="Sirenix.OdinInspector.Attributes">
       <HintPath>Libs\Sirenix.OdinInspector.Attributes.dll</HintPath>
     </Reference>
-    <Reference Include="Sirenix.Serialization.Config">
-      <HintPath>Libs\Sirenix.Serialization.Config.dll</HintPath>
+    <Reference Include="Sirenix.OdinInspector.Modules.Unity.Addressables">
+      <HintPath>Libs\Sirenix.OdinInspector.Modules.Unity.Addressables.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization">
       <HintPath>Libs\Sirenix.Serialization.dll</HintPath>
     </Reference>
+    <Reference Include="Sirenix.Serialization.Config">
+      <HintPath>Libs\Sirenix.Serialization.Config.dll</HintPath>
+    </Reference>
     <Reference Include="Sirenix.Utilities">
       <HintPath>Libs\Sirenix.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>Libs\Unity.Addressables.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst">
       <HintPath>Libs\Unity.Burst.dll</HintPath>
@@ -160,6 +207,9 @@
     <Reference Include="Unity.Profiling.Core">
       <HintPath>Libs\Unity.Profiling.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>Libs\Unity.ResourceManager.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Scenes">
       <HintPath>Libs\Unity.Scenes.dll</HintPath>
     </Reference>
@@ -168,6 +218,9 @@
     </Reference>
     <Reference Include="Unity.Serialization">
       <HintPath>Libs\Unity.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Splines">
+      <HintPath>Libs\Unity.Splines.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Libs\Unity.TextMeshPro.dll</HintPath>
@@ -192,6 +245,9 @@
     </Reference>
     <Reference Include="Unity.VisualScripting.State">
       <HintPath>Libs\Unity.VisualScripting.State.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>Libs\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AccessibilityModule">
       <HintPath>Libs\UnityEngine.AccessibilityModule.dll</HintPath>
@@ -234,9 +290,6 @@
     </Reference>
     <Reference Include="UnityEngine.DirectorModule">
       <HintPath>Libs\UnityEngine.DirectorModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>Libs\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.DSPGraphModule">
       <HintPath>Libs\UnityEngine.DSPGraphModule.dll</HintPath>
@@ -400,47 +453,14 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>Libs\UnityEngine.XRModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityMeshDecimation">
+      <HintPath>Libs\UnityMeshDecimation.dll</HintPath>
+    </Reference>
     <Reference Include="WFowler1.BspImporter.Runtime">
       <HintPath>Libs\WFowler1.BspImporter.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="XNode">
       <HintPath>Libs\XNode.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>Libs\BepInEx\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>Libs\BepInEx\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Harmony">
-      <HintPath>Libs\BepInEx\BepInEx.Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx.Preloader">
-      <HintPath>Libs\BepInEx\BepInEx.Preloader.dll</HintPath>
-    </Reference>
-    <Reference Include="HarmonyXInterop">
-      <HintPath>Libs\BepInEx\HarmonyXInterop.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>Libs\BepInEx\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>Libs\BepInEx\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>Libs\BepInEx\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>Libs\BepInEx\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>Libs\BepInEx\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>Libs\BepInEx\MonoMod.Utils.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

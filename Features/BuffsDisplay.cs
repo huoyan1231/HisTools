@@ -113,27 +113,24 @@ public class BuffsDisplay : FeatureBase
         EventBus.Subscribe<WorldUpdateEvent>(OnWorldUpdate);
     }
 
-    private static float CalculateBuffSecondsLeft(BuffContainer.Buff buff, float loseRate, bool lose)
+    private static float CalculateBuffSecondsLeft(BuffContainer container)
     {
-        var player = ENT_Player.GetPlayer();
-        if (buff == null || buff.maxAmount <= 0f || float.IsNaN(buff.amount) || player == null)
+        if (container == null)
             return 0f;
 
-        if (!lose || loseRate <= 0f)
+        if (!container.loseOverTime || container.loseRate <= 0f)
             return float.PositiveInfinity;
 
-        var buffs = player.curBuffs;
-
-        var timeMultBuff = buffs.GetBuff("buffTimeMult");
-
+        // buffTime is a [0,1] normalized timer that drains over time.
+        // Rate: buffTime -= deltaTime * loseRate / (1 + GetBuff("buffTimeMult"))
+        // Therefore: secondsLeft = buffTime / (loseRate / timeMultiplier)
+        var timeMultBuff = ENT_Player.playerObject != null
+            ? ENT_Player.playerObject.curBuffs.GetBuff("buffTimeMult")
+            : 0f;
         var timeMultiplier = Mathf.Max(1f + timeMultBuff, 0.1f);
-        var num = 1f / timeMultiplier;
+        var effectiveLoseRate = container.loseRate / timeMultiplier;
 
-        var effectiveLoseRate = loseRate * num;
-
-        var buffTime = buff.amount / buff.maxAmount;
-
-        return buffTime / effectiveLoseRate;
+        return container.buffTime / effectiveLoseRate;
     }
 
     private static string GetFormattedTime(float secondsLeft)
@@ -144,11 +141,6 @@ public class BuffsDisplay : FeatureBase
     private static bool HaveBuff(BuffContainer bc, string id)
     {
         return bc.buffs.Any(buff => buff.id == id);
-    }
-
-    private static List<BuffContainer.Buff> GetBuffs(BuffContainer bc, string id)
-    {
-        return bc.buffs.Where(buff => buff.id == id).ToList();
     }
 
     private static List<BuffContainer> SearchBuff(List<BuffContainer> bcList, string id)
@@ -162,16 +154,19 @@ public class BuffsDisplay : FeatureBase
             icons[i].gameObject.SetActive(i < count);
     }
 
-    private static float SummaryBuffSecondsLeft(List<BuffContainer> containers, string id)
+    private static float SummaryBuffSecondsLeft(List<BuffContainer> containers)
     {
-        var secondsLeft = 0f;
+        // Return the shortest remaining time among all active containers of this buff type.
+        // This ensures the countdown always shows the soonest expiry, preventing the timer
+        // from appearing frozen when one container expires while others remain.
+        var minSecondsLeft = float.PositiveInfinity;
         foreach (var container in containers)
         {
-            var buff = GetBuffs(container, id).First();
-            secondsLeft += CalculateBuffSecondsLeft(buff, container.loseRate, container.loseOverTime) - secondsLeft;
+            var secondsLeft = CalculateBuffSecondsLeft(container);
+            if (secondsLeft < minSecondsLeft)
+                minSecondsLeft = secondsLeft;
         }
-
-        return secondsLeft;
+        return minSecondsLeft;
     }
 
     private void OnWorldUpdate(WorldUpdateEvent e)
@@ -214,36 +209,21 @@ public class BuffsDisplay : FeatureBase
         _pills?.Transform.gameObject.SetActive(pilledContainers.Count > 0);
         
         if (goopedContainers.Count > 0)
-            RenderBuff(goopedContainers, _grub.GetValueOrDefault(), "gooped");
+            RenderBuff(goopedContainers, _grub.GetValueOrDefault());
 
         if (roidedContainers.Count > 0)
-            RenderBuff(roidedContainers, _injector.GetValueOrDefault(), "roided");
+            RenderBuff(roidedContainers, _injector.GetValueOrDefault());
 
         if (pilledContainers.Count > 0)
-            RenderBuff(pilledContainers, _pills.GetValueOrDefault(), "pilled");
+            RenderBuff(pilledContainers, _pills.GetValueOrDefault());
 
         if (foodBarContainers.Count > 0)
-            RenderBuff(foodBarContainers, _foodBar.GetValueOrDefault(), "roided", "pilled");
+            RenderBuff(foodBarContainers, _foodBar.GetValueOrDefault());
     }
 
-    private void RenderBuff(List<BuffContainer> containers, BuffIndicator obj, string buffId1, string buffId2 = null)
+    private void RenderBuff(List<BuffContainer> containers, BuffIndicator obj)
     {
-        var container = containers.First();
-        BuffContainer.Buff buff;
-
-        if (string.IsNullOrEmpty(buffId2))
-        {
-            buff = GetBuffs(container, buffId1).First();
-        }
-        else
-        {
-            var b1 = GetBuffs(container, buffId1).First();
-            var b2 = GetBuffs(container, buffId2).First();
-
-            buff = b1.amount < b2.amount ? b1 : b2;
-        }
-
-        var secondsLeft = SummaryBuffSecondsLeft(containers, buff.id);
+        var secondsLeft = SummaryBuffSecondsLeft(containers);
 
         obj.Value.text = $"x{containers.Count}";
         obj.Time.text = GetFormattedTime(secondsLeft);

@@ -65,7 +65,7 @@ public class DebugInfo : FeatureBase
         EventBus.Unsubscribe<WorldUpdateEvent>(OnWorldUpdate);
         EventBus.Unsubscribe<PlayerLateUpdateEvent>(OnPlayerLateUpdate);
 
-        _uiCanvas.gameObject.SetActive(false);
+        _uiCanvas?.gameObject?.SetActive(false);
     }
 
     private void OnWorldUpdate(WorldUpdateEvent e)

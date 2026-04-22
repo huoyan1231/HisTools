@@ -11,7 +11,6 @@ namespace HisTools.Features;
 public class ShowItemInfo : FeatureBase
 {
     private GameObject _itemInfoPrefab;
-    private Transform _playerTransform;
 
     public ShowItemInfo() : base("ShowItemInfo", "Show spawn chances")
     {
@@ -24,12 +23,6 @@ public class ShowItemInfo : FeatureBase
 
     private void EnsurePrefabs()
     {
-        if (_playerTransform) return;
-        var player = ENT_Player.GetPlayer();
-        if (player == null) return;
-        
-        _playerTransform = player.transform;
-        
         if (_itemInfoPrefab != null) return;
 
         _itemInfoPrefab = new GameObject($"HisTools_ItemInfo_Prefab");
@@ -38,8 +31,8 @@ public class ShowItemInfo : FeatureBase
         tmp.fontSize = GetSetting<FloatSliderSetting>("Label size").Value;
         tmp.color = GetSetting<ColorSetting>("Label color").Value;
         tmp.alignment = TextAlignmentOptions.Center;
-        var look = tmp.AddComponent<LookAtPlayer>();
-        look.player = _playerTransform;
+        // LookAtPlayer was renamed to UT_LookatPlayer in game update and no longer needs a player reference
+        _itemInfoPrefab.AddComponent<UT_LookatPlayer>();
         _itemInfoPrefab.SetActive(false);
     }
 

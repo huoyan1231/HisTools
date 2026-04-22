@@ -24,7 +24,7 @@ public class LabelLookAnimation : MonoBehaviour
     private void Awake()
     {
         _tmp = GetComponent<TextMeshPro>();
-        _renderer = _tmp.GetComponent<Renderer>();
+        _renderer = GetComponent<Renderer>();
         _cam = Camera.main?.transform;
 
         _baseColor = _tmp.color;
@@ -33,7 +33,7 @@ public class LabelLookAnimation : MonoBehaviour
 
     private void Update()
     {
-        if (!_cam || !_tmp)
+        if (!_cam || !_tmp || !_renderer)
             return;
 
         var hitThis = false;
@@ -61,7 +61,7 @@ public class LabelLookAnimation : MonoBehaviour
 
     private void Activate()
     {
-        if (!this || !transform)
+        if (!this || !transform || !_tmp)
         {
             return;
         }
@@ -76,7 +76,7 @@ public class LabelLookAnimation : MonoBehaviour
 
     private void Deactivate()
     {
-        if (!this || !transform)
+        if (!this || !transform || !_tmp)
         {
             return;
         }

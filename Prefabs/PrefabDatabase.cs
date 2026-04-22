@@ -22,6 +22,19 @@ namespace HisTools.Prefabs
 
             if (!go)
             {
+                // name format: "bundleName/assetName"
+                var slashIndex = name.IndexOf('/');
+                if (slashIndex > 0)
+                {
+                    var bundleName = name[..slashIndex];
+                    var assetName = name[(slashIndex + 1)..];
+                    LoadAsset<GameObject>(bundleName, assetName);
+                    go = GetCached<GameObject>(name);
+                }
+            }
+
+            if (!go)
+            {
                 Logger.Error($"PrefabDatabase: Prefab '{name}' not found");
                 return null;
             }

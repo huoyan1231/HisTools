@@ -17,6 +17,11 @@ public class MarkerActivator : MonoBehaviour
 
     public void ActivateMarker(Color targetColor)
     {
+        if (!this || !_renderer || !_renderer.material)
+        {
+            return;
+        }
+
         transform.DOPunchScale(Vector3.one * bounceStrength, bounceDuration, 1, 0.5f);
 
         _renderer.material.DOColor(targetColor, bounceDuration);

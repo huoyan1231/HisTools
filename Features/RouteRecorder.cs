@@ -123,10 +123,13 @@ public class RouteRecorder : FeatureBase
 
         // Recorder Menu
         var recorderUI = PrefabDatabase.Instance.GetObject("histools/UI_RouteRecorder", true);
-        if (recorderUI) _recorderMenu = Object.Instantiate(recorderUI);
-        _recorderMenuPointsTmp = _recorderMenu.GetComponentInChildren<TextMeshProUGUI>();
-        _recorderMenuPlayButton = _recorderMenu.transform.Find("Menu/Controls/PlayPause/PlayButton").gameObject;
-        _recorderMenuPauseButton = _recorderMenu.transform.Find("Menu/Controls/PlayPause/PauseButton").gameObject;
+        if (recorderUI)
+        {
+            _recorderMenu = Object.Instantiate(recorderUI);
+            _recorderMenuPointsTmp = _recorderMenu.GetComponentInChildren<TextMeshProUGUI>();
+            _recorderMenuPlayButton = _recorderMenu.transform.Find("Menu/Controls/PlayPause/PlayButton")?.gameObject;
+            _recorderMenuPauseButton = _recorderMenu.transform.Find("Menu/Controls/PlayPause/PauseButton")?.gameObject;
+        }
 
         // Note Popup
         var notePopupPrefab = PrefabDatabase.Instance.GetObject("histools/UI_Popup_Input", true);
@@ -326,16 +329,8 @@ public class RouteRecorder : FeatureBase
         if (Input.GetKeyDown(KeyCode.P))
         {
             _recording = !_recording;
-            if (_recording)
-            {
-                _recorderMenuPlayButton.SetActive(false);
-                _recorderMenuPauseButton.SetActive(true);
-            }
-            else
-            {
-                _recorderMenuPlayButton.SetActive(true);
-                _recorderMenuPauseButton.SetActive(false);
-            }
+            if (_recorderMenuPlayButton) _recorderMenuPlayButton.SetActive(!_recording);
+            if (_recorderMenuPauseButton) _recorderMenuPauseButton.SetActive(_recording);
         }
 
         if (Input.GetKeyDown(KeyCode.K))
@@ -429,6 +424,6 @@ public class RouteRecorder : FeatureBase
         _previewLine.positionCount = pointsWorld.Length;
         _previewLine.SetPositions(pointsWorld);
 
-        _recorderMenuPointsTmp.text = $"Points: {_points.Count}";
+        if (_recorderMenuPointsTmp) _recorderMenuPointsTmp.text = $"Points: {_points.Count}";
     }
 }
