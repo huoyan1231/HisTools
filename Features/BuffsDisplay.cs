@@ -19,6 +19,17 @@ internal struct BuffIndicator
     public TextMeshProUGUI Time;
 }
 
+/// <summary>
+/// Represents a timed perk's display info.
+/// </summary>
+internal struct TimedPerkInfo
+{
+    public string PerkName;
+    public string PerkId;
+    public float SecondsLeft;
+    public int StackAmount;
+}
+
 public class BuffsDisplay : FeatureBase
 {
     private Canvas _canvas;
@@ -29,13 +40,23 @@ public class BuffsDisplay : FeatureBase
     private BuffIndicator? _pills;
     private BuffIndicator? _foodBar;
 
+    // Timed perk UI elements
+    private GameObject _perksContainer;
+    private readonly List<GameObject> _perkIndicators = new();
+    private const int MaxPerkIndicators = 10;
+    private const float PerkIndicatorHeight = 30f;
+
     private readonly BoolSetting _showOnlyInPause;
     private readonly FloatSliderSetting _buffsPosition;
+    private readonly BoolSetting _showTimedPerks;
+    private readonly FloatSliderSetting _perksDisplayPosition;
 
     public BuffsDisplay() : base("BuffsDisplay", "Display all current buff effects")
     {
         _showOnlyInPause = AddSetting(new BoolSetting(this, "ShowOnlyInPause", "...", false));
         _buffsPosition = AddSetting(new FloatSliderSetting(this, "Position", "...", 2f, 1f, 6f, 1f, 0));
+        _showTimedPerks = AddSetting(new BoolSetting(this, "ShowTimedPerks", "Show limited-time perk countdowns", true));
+        _perksDisplayPosition = AddSetting(new FloatSliderSetting(this, "PerksPos", "...", 3f, 1f, 6f, 1f, 0));
     }
 
     private BuffIndicator? GetBuffIndicator(string name)
@@ -61,7 +82,10 @@ public class BuffsDisplay : FeatureBase
             _foodBar.HasValue &&
             _layout &&
             _canvas)
+        {
+            EnsurePerksContainer();
             return true;
+        }
 
         var prefab = PrefabDatabase.Instance.GetObject("histools/UI_BuffsDisplay", true);
         if (!prefab)
@@ -104,7 +128,123 @@ public class BuffsDisplay : FeatureBase
             (int)_buffsPosition.Value
         );
 
+        EnsurePerksContainer();
+
         return true;
+    }
+
+    /// <summary>
+    /// Creates and manages the container for timed perk indicators.
+    /// Uses the main buffs canvas to avoid duplicate Event Systems.
+    /// </summary>
+    private void EnsurePerksContainer()
+    {
+        if (!_showTimedPerks.Value)
+        {
+            _perksContainer?.SetActive(false);
+            return;
+        }
+
+        if (_perksContainer != null)
+        {
+            _perksContainer.SetActive(true);
+            return;
+        }
+
+        // Reuse the main buffs canvas to avoid duplicate Event Systems
+        if (_canvas == null)
+        {
+            // Canvas not ready yet, will be created in EnsurePrefabs
+            return;
+        }
+
+        // Create container for perk indicators inside the existing canvas
+        _perksContainer = new GameObject("HisTools_PerksContainer");
+        _perksContainer.transform.SetParent(_canvas.transform, false);
+
+        var rect = _perksContainer.AddComponent<RectTransform>();
+        rect.anchorMin = Vector2.one; // Top-right
+        rect.anchorMax = Vector2.one;
+        rect.pivot = Vector2.one;
+        rect.anchoredPosition = new Vector2(-10, -10);
+
+        var vLayout = _perksContainer.AddComponent<VerticalLayoutGroup>();
+        vLayout.childAlignment = TextAnchor.UpperRight;
+        vLayout.childControlWidth = true;
+        vLayout.childControlHeight = true;
+        vLayout.childForceExpandWidth = false;
+        vLayout.childForceExpandHeight = false;
+        vLayout.spacing = 5f;
+
+        // Position based on settings
+        Anchor.SetAnchor(rect, (int)_perksDisplayPosition.Value);
+
+        // Pre-create perk indicator slots
+        for (int i = 0; i < MaxPerkIndicators; i++)
+        {
+            var indicator = CreatePerkIndicator(_perksContainer.transform, i);
+            _perkIndicators.Add(indicator);
+            indicator.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Creates a single perk indicator GameObject with icon, name, and countdown timer.
+    /// </summary>
+    private GameObject CreatePerkIndicator(Transform parent, int index)
+    {
+        var indicatorGO = new GameObject($"PerkIndicator_{index}");
+        indicatorGO.transform.SetParent(parent, false);
+
+        // Layout element for sizing
+        var layoutEl = indicatorGO.AddComponent<LayoutElement>();
+        layoutEl.minHeight = PerkIndicatorHeight;
+        layoutEl.preferredWidth = 180f;
+        layoutEl.flexibleWidth = 0f;
+
+        // Background image
+        var bgGO = new GameObject("Background");
+        bgGO.transform.SetParent(indicatorGO.transform, false);
+        var bgRect = bgGO.AddComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+        var bgImg = bgGO.AddComponent<Image>();
+        bgImg.color = new Color(0.1f, 0.1f, 0.15f, 0.8f);
+
+        // Perk name label
+        var nameGO = new GameObject("PerkName");
+        nameGO.transform.SetParent(indicatorGO.transform, false);
+        var nameRect = nameGO.AddComponent<RectTransform>();
+        nameRect.anchorMin = new Vector2(0, 0.5f);
+        nameRect.anchorMax = new Vector2(0, 0.5f);
+        nameRect.pivot = new Vector2(0, 0.5f);
+        nameRect.anchoredPosition = new Vector2(5, 0);
+        nameRect.sizeDelta = new Vector2(100, 20);
+        var nameText = nameGO.AddComponent<TextMeshProUGUI>();
+        nameText.text = "";
+        nameText.fontSize = 12f;
+        nameText.color = Color.white;
+        nameText.alignment = TextAlignmentOptions.Left;
+
+        // Timer label
+        var timerGO = new GameObject("Timer");
+        timerGO.transform.SetParent(indicatorGO.transform, false);
+        var timerRect = timerGO.AddComponent<RectTransform>();
+        timerRect.anchorMin = new Vector2(1, 0.5f);
+        timerRect.anchorMax = new Vector2(1, 0.5f);
+        timerRect.pivot = new Vector2(1, 0.5f);
+        timerRect.anchoredPosition = new Vector2(-5, 0);
+        timerRect.sizeDelta = new Vector2(70, 20);
+        var timerText = timerGO.AddComponent<TextMeshProUGUI>();
+        timerText.text = "";
+        timerText.fontSize = 12f;
+        timerText.color = new Color(1f, 0.8f, 0.2f); // Yellow/gold for timers
+        timerText.alignment = TextAlignmentOptions.Right;
+        timerText.fontStyle = FontStyles.Bold;
+
+        return indicatorGO;
     }
 
 
@@ -169,6 +309,110 @@ public class BuffsDisplay : FeatureBase
         return minSecondsLeft;
     }
 
+    /// <summary>
+    /// Gets all timed perks with their remaining duration.
+    /// A perk is considered "timed" if its associated buff has loseOverTime enabled.
+    /// </summary>
+    private List<TimedPerkInfo> GetTimedPerks()
+    {
+        var timedPerks = new List<TimedPerkInfo>();
+
+        var player = ENT_Player.GetPlayer();
+        if (player == null || player.perks == null)
+            return timedPerks;
+
+        foreach (var perk in player.perks)
+        {
+            if (perk == null || perk.buff == null || string.IsNullOrEmpty(perk.buff.id))
+                continue;
+
+            // Get the buff container for this perk
+            var container = player.curBuffs.GetBuffContainer(perk.buff.id);
+            if (container == null)
+                continue;
+
+            // Only show perks with active timers (loseOverTime)
+            if (!container.loseOverTime || container.loseRate <= 0f)
+                continue;
+
+            var secondsLeft = CalculateBuffSecondsLeft(container);
+            if (float.IsInfinity(secondsLeft) || secondsLeft <= 0f)
+                continue;
+
+            // Get perk title - use a shortened version
+            var perkName = perk.title;
+            if (string.IsNullOrEmpty(perkName))
+                perkName = perk.id;
+
+            // Shorten long names
+            if (perkName.Length > 12)
+                perkName = perkName[..12] + "...";
+
+            timedPerks.Add(new TimedPerkInfo
+            {
+                PerkName = perkName,
+                PerkId = perk.id,
+                SecondsLeft = secondsLeft,
+                StackAmount = perk.stackAmount
+            });
+        }
+
+        // Sort by remaining time (shortest first)
+        timedPerks.Sort((a, b) => a.SecondsLeft.CompareTo(b.SecondsLeft));
+
+        return timedPerks;
+    }
+
+    /// <summary>
+    /// Updates the timed perks UI indicators.
+    /// </summary>
+    private void UpdateTimedPerksUI(List<TimedPerkInfo> timedPerks)
+    {
+        if (!_showTimedPerks.Value || _perkIndicators.Count == 0)
+            return;
+
+        for (int i = 0; i < MaxPerkIndicators; i++)
+        {
+            var indicator = _perkIndicators[i];
+            if (indicator == null)
+                continue;
+
+            if (i < timedPerks.Count)
+            {
+                var perk = timedPerks[i];
+                indicator.SetActive(true);
+
+                // Update name
+                var nameText = indicator.transform.Find("PerkName")?.GetComponent<TextMeshProUGUI>();
+                if (nameText != null)
+                {
+                    nameText.text = perk.StackAmount > 1
+                        ? $"{perk.PerkName} x{perk.StackAmount}"
+                        : perk.PerkName;
+                }
+
+                // Update timer
+                var timerText = indicator.transform.Find("Timer")?.GetComponent<TextMeshProUGUI>();
+                if (timerText != null)
+                {
+                    timerText.text = GetFormattedTime(perk.SecondsLeft);
+
+                    // Color based on urgency
+                    if (perk.SecondsLeft < 10f)
+                        timerText.color = new Color(1f, 0.2f, 0.2f); // Red when < 10s
+                    else if (perk.SecondsLeft < 30f)
+                        timerText.color = new Color(1f, 0.6f, 0.2f); // Orange when < 30s
+                    else
+                        timerText.color = new Color(1f, 0.9f, 0.2f); // Yellow otherwise
+                }
+            }
+            else
+            {
+                indicator.SetActive(false);
+            }
+        }
+    }
+
     private void OnWorldUpdate(WorldUpdateEvent e)
     {
         if (!EnsurePrefabs())
@@ -186,8 +430,13 @@ public class BuffsDisplay : FeatureBase
             _injector?.Transform.gameObject.SetActive(false);
             _foodBar?.Transform.gameObject.SetActive(false);
             _pills?.Transform.gameObject.SetActive(false);
+            _perksContainer?.SetActive(false);
             return;
         }
+
+        // Show/hide perks container based on setting
+        if (_showTimedPerks.Value)
+            _perksContainer?.SetActive(true);
 
         var containers = player.curBuffs.currentBuffs;
 
@@ -219,6 +468,13 @@ public class BuffsDisplay : FeatureBase
 
         if (foodBarContainers.Count > 0)
             RenderBuff(foodBarContainers, _foodBar.GetValueOrDefault());
+
+        // Update timed perks display
+        if (_showTimedPerks.Value)
+        {
+            var timedPerks = GetTimedPerks();
+            UpdateTimedPerksUI(timedPerks);
+        }
     }
 
     private void RenderBuff(List<BuffContainer> containers, BuffIndicator obj)
@@ -233,7 +489,14 @@ public class BuffsDisplay : FeatureBase
 
     public override void OnDisable()
     {
-        Object.Destroy(_canvas.gameObject);
+        // Destroy the main buffs canvas (which also destroys perks container if parented)
+        if (_canvas != null)
+            Object.Destroy(_canvas.gameObject);
+        
+        // Also destroy perks container if it exists separately
+        if (_perksContainer != null && _perksContainer.transform.parent != _canvas?.transform)
+            Object.Destroy(_perksContainer.transform.parent?.gameObject);
+
         EventBus.Unsubscribe<WorldUpdateEvent>(OnWorldUpdate);
     }
 }
