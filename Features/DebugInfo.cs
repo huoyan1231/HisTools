@@ -3,6 +3,7 @@ using HisTools.Features.Controllers;
 using HisTools.Prefabs;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Logger = HisTools.Utils.Logger;
 
 namespace HisTools.Features;
@@ -33,6 +34,11 @@ public class DebugInfo : FeatureBase
         var go = Object.Instantiate(prefab);
         _uiCanvas = go.GetComponent<Canvas>();
         _uiText = go.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        // Remove EventSystem from prefab to avoid "There can be only one active Event System" warning
+        var eventSystem = go.GetComponentInChildren<EventSystem>(true);
+        if (eventSystem != null)
+            Object.Destroy(eventSystem);
     }
 
     private void AddSettings()

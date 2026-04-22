@@ -113,6 +113,7 @@ public class Plugin : BaseUnityPlugin
         RegisterFeature(visualCategoryPos, "Visual", new CustomHandhold());
         RegisterFeature(visualCategoryPos, "Visual", new ShowItemInfo());
         RegisterFeature(visualCategoryPos, "Visual", new BuffsDisplay());
+        RegisterFeature(visualCategoryPos, "Visual", new TimedPerkDisplay());
 
         // Path features
         RegisterFeature(pathCategoryPos, "Path", new RoutePlayer());
