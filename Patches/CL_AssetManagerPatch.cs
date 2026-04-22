@@ -24,7 +24,6 @@ public static class CL_AssetManagerPatch
             PrefabDatabase.Instance.LoadAsset<GameObject>("histools", "UI_Popup_Input");
             PrefabDatabase.Instance.LoadAsset<GameObject>("histools", "UI_Popup_SaveRecord");
             PrefabDatabase.Instance.LoadAsset<GameObject>("histools", "UI_RouteRecorderHistory");
-            PrefabDatabase.Instance.LoadAsset<GameObject>("histools", "RouteBrowser");
         }
     }
 }
