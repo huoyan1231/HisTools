@@ -53,17 +53,17 @@ public class GloveEnergyDisplay : ArtifactsInfo
 
         _worldLabel = new GameObject("HisTools_GloveEnergy_Label");
         _worldLabel.transform.SetParent(parent, false);
-        _worldLabel.transform.localPosition = Vector3.up * 0.3f; // Slightly above the glove
+        _worldLabel.transform.localPosition = Vector3.up * 0.4f; // Slightly above the glove
 
         _worldText = _worldLabel.AddComponent<TextMeshPro>();
         _worldText.alignment = TextAlignmentOptions.Center;
         _worldText.fontSize = 2f;
         
         // Mirror the text (scale -1 on X) to look correct from behind as in ShowItemInfo
-        _worldLabel.transform.localScale = new Vector3(-1, 1, 1);
-        
+        _worldLabel.transform.localScale = new Vector3(1, 1, 1);
+
         // Add look-at component
-        _worldLabel.AddComponent<UT_LookatPlayer>();
+        // _worldLabel.AddComponent<UT_LookatPlayer>();
     }
 
     private void CleanupWorldUI()
