@@ -1,7 +1,9 @@
 {
-  "name": "HisTools",
-  "version_number": "0.2.0",
-  "website_url": "https://github.com/cyfral123/HisTools",
-  "description": "Various tools for speedrunners/begginers",
-  "dependencies": ["BepInEx-BepInExPack-5.4.2100"]
+  "name": "HerTools",
+  "version_number": "0.3.2",
+  "website_url": "https://github.com/huoyan1231/HisTools",
+  "description": "just a fork and add some new features",
+  "dependencies": [
+    "BepInEx-BepInExPack-5.4.2100",
+    "huoyan1231-WK_huoyan1231COMLib-1.0.0"]
 }

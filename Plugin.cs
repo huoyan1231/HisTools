@@ -123,6 +123,7 @@ public class Plugin : BaseUnityPlugin
         // Misc features
         RegisterFeature(miscCategoryPos, "Misc", new FreeBuying());
         RegisterFeature(miscCategoryPos, "Misc", new SpeedrunStats());
+        RegisterFeature(miscCategoryPos, "Misc", new SkipLeaderboard());
     }
 
     private static void SubscribeToEvents()

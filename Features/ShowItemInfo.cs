@@ -31,10 +31,8 @@ public class ShowItemInfo : FeatureBase
         tmp.fontSize = GetSetting<FloatSliderSetting>("Label size").Value;
         tmp.color = GetSetting<ColorSetting>("Label color").Value;
         tmp.alignment = TextAlignmentOptions.Center;
-        // Mirror the text (scale -1 on X) so it looks correct when viewed from behind
-        _itemInfoPrefab.transform.localScale = new Vector3(-1, 1, 1);
-        // LookAtPlayer was renamed to UT_LookatPlayer in game update and no longer needs a player reference
-        _itemInfoPrefab.AddComponent<UT_LookatPlayer>();
+        // Use our own LookAtPlayer instead of game's broken UT_LookatPlayer
+        _itemInfoPrefab.AddComponent<LookAtPlayer>();
         _itemInfoPrefab.SetActive(false);
     }
 

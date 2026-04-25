@@ -6,7 +6,7 @@ namespace HisTools;
 public static class Constants
 {
     public const string PluginName = "HisTools";
-    public const string PluginVersion = "0.3.0";
+    public const string PluginVersion = "0.3.2";
     public const string PluginGuid = "com.cyfral.HisTools";
 
     public static class Animation

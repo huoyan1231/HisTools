@@ -11,6 +11,13 @@ Everything is configured optimally by default, but you can adjust a features set
 ### 🔹 The pathline seems too faint. How can I make it more visible?
 You can adjust the transparency and colors in the featuress settings by clicking the `wrench icon`
 
+### 🔹 Why dont my configured colors apply to the route
+By default, the `Use route preferred colors` setting is enabled.
+
+If the route author has set preferred colors, they will override your custom colors.
+
+You can either disable this setting or edit the routes colors directly in its json file.
+
 ### 🔹 How to Enable/Disable a specific route?
 look to the route label and press the `middle mouse button` to toggle the route.
 
